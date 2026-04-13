@@ -13,6 +13,7 @@
 </head>
 <body>
 
+
     <div class="background-blobs">
         <div class="blob blob-1"></div>
         <div class="blob blob-2"></div>
@@ -44,6 +45,7 @@
     </nav>
 
     <section class="dashboard-page">
+    
         <h1 class="section-title">Bienvenue Dr. <span>{{ auth()->user()->name }}</span></h1>
         <p class="section-subtitle">
             Gérez votre activité médicale, vos horaires, vos rendez-vous et votre profil professionnel.
