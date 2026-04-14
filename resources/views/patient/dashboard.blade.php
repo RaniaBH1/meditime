@@ -138,8 +138,8 @@ function searchDoctors() {
             data.forEach(doc => {
                 results.innerHTML += `
                     <div class="doctor-result">
-                        <strong>${doc.name}</strong><br>
-                        <small>${doc.speciality ?? 'Spécialité non définie'}</small><br>
+                        <strong><p>Dr. ${doc.name}</p></strong>
+                        <small>${doc.speciality ?? 'Spécialité non définie'}</small><br><small>${doc.address}</small><br><small>${doc.phone}</small><br>
                         <a href="/medecin/${doc.id}">
                             Voir calendrier →
                         </a>
