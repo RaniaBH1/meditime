@@ -15,6 +15,9 @@ Route::get('/login', function () {
     return view('login');
 });
 
+Route::get('/contact', function (){
+    return view('contact');
+})->name('contact');
 
 Route::get('/dashboard', function () {
     if (!Auth::check()) {
