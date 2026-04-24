@@ -70,7 +70,7 @@
             </div>
 
             <div class="dashboard-card">
-                <h3>Mon profil professionnel</h3>
+                <h3>Mon profil </h3>
                 <p>Complétez vos informations : spécialité, téléphone, adresse du cabinet et présentation.</p>
                 <div class="dashboard-actions">
                     <a href="{{ route('profile.edit') }}" class="dashboard-btn secondary">Modifier</a>
