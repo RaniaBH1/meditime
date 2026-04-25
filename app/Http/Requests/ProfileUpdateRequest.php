@@ -8,50 +8,20 @@ use Illuminate\Validation\Rule;
 
 class ProfileUpdateRequest extends FormRequest
 {
+    /**
+     * Get the validation rules that apply to the request.
+     *
+     * @return array<string, \Illuminate\Contracts\Validation\Rule|array|string>
+     */
     public function rules(): array
     {
-        $user = $this->user();
-
         return [
             'name' => ['required', 'string', 'max:255'],
-
-            'email' => [
-                'required',
-                'string',
-                'lowercase',
-                'email',
-                'max:255',
-                Rule::unique(User::class)->ignore($user->id),
-            ],
-
-            // Champs médecin
-            'phone' => [
-                Rule::requiredIf($user && $user->role === 'medecin'),
-                'nullable',
-                'string',
-                'max:20'
-            ],
-
-            'speciality' => [
-                Rule::requiredIf($user && $user->role === 'medecin'),
-                'nullable',
-                'string',
-                'max:255'
-            ],
-
-            'address' => [
-                Rule::requiredIf($user && $user->role === 'medecin'),
-                'nullable',
-                'string',
-                'max:255'
-            ],
-
-            'license_number' => [
-                Rule::requiredIf($user && $user->role === 'medecin'),
-                'nullable',
-                'string',
-                'max:255'
-            ],
+            'photo' => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif', 'max:2048'], // AJOUTÉ
+            'phone' => ['nullable', 'string', 'max:20'],
+            'speciality' => ['nullable', 'string', 'max:255'],
+            'address' => ['nullable', 'string', 'max:500'],
+            'license_number' => ['nullable', 'string', 'max:255'],
         ];
     }
 }
