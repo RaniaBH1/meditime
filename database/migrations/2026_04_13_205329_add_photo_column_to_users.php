@@ -10,7 +10,7 @@ return new class extends Migration
     {
         Schema::table('users', function (Blueprint $table) {
             if (!Schema::hasColumn('users', 'photo')) {
-                $table->string('photo')->nullable();
+                $table->string('photo')->nullable()->after('email'); // après la colonne email
             }
         });
     }
@@ -18,7 +18,9 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->dropColumn('photo');
+            if (Schema::hasColumn('users', 'photo')) {
+                $table->dropColumn('photo');
+            }
         });
     }
 };

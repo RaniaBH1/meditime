@@ -15,11 +15,13 @@ class MedecinController extends Controller
             return response()->json([]);
         }
 
+        // Utilisez 'speciality' (avec 'i') comme dans votre base
         $medecins = User::where('role', 'medecin')
             ->where(function ($q) use ($query) {
-                $q->where('name', 'like', "%$query%")
-                  ->orWhere('speciality', 'like', "%$query%");
+                $q->where('name', 'like', "%{$query}%")
+                  ->orWhere('speciality', 'like', "%{$query}%");
             })
+            ->select('id', 'name', 'speciality', 'address', 'phone', 'photo')
             ->get();
 
         return response()->json($medecins);

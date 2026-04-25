@@ -2,93 +2,110 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\ProfileUpdateRequest;
-use Illuminate\Http\RedirectResponse;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
-use Illuminate\View\View;
 
 class ProfileController extends Controller
 {
-    /**
-     * Display the user's profile form.
-     */
-    public function edit(Request $request): View
+    public function edit()
     {
-        return view('profile.edit', [
-            'user' => $request->user(),
-        ]);
+        return view('profile.edit', ['user' => Auth::user()]);
     }
 
-    /**
-     * Update the user's profile information.
-     */
-    public function update(ProfileUpdateRequest $request): RedirectResponse
+    public function update(Request $request)
     {
-        // === DÉBOGAGE AVEC error_log ===
-        error_log('=== UPDATE PROFIL ===');
-        error_log('Has photo? ' . ($request->hasFile('photo') ? 'OUI' : 'NON'));
+        $user = Auth::user();
         
-        if ($request->hasFile('photo')) {
-            error_log('Photo reçue - Nom: ' . $request->file('photo')->getClientOriginalName());
-            error_log('Photo reçue - Taille: ' . $request->file('photo')->getSize());
-            error_log('Photo reçue - Type: ' . $request->file('photo')->getMimeType());
-        } else {
-            error_log('AUCUNE photo reçue dans la requête');
-        }
-        // === FIN DÉBOGAGE ===
+        // Validation
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'phone' => 'nullable|string|max:20',
+            'speciality' => 'nullable|string|max:255',
+            'address' => 'nullable|string|max:500',
+            'license_number' => 'nullable|string|max:255',
+        ]);
 
-        $user = $request->user();
-        $user->fill($request->validated());
+        // Mettre à jour le nom
+        $user->name = $request->name;
+        
+        // Mettre à jour les champs spécifiques aux médecins
+        if ($user->role === 'medecin') {
+            $user->phone = $request->phone;
+            $user->speciality = $request->speciality;
+            $user->address = $request->address;
+            $user->license_number = $request->license_number;
+        }
 
         // Gestion de la photo
         if ($request->hasFile('photo')) {
             try {
-                // Supprimer l'ancienne photo
+                // Supprimer l'ancienne photo si elle existe
                 if ($user->photo && file_exists(public_path('photos/' . $user->photo))) {
                     unlink(public_path('photos/' . $user->photo));
-                    error_log('Ancienne photo supprimée');
                 }
                 
                 $file = $request->file('photo');
-                $filename = time() . '_' . $file->getClientOriginalName();
+                $filename = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
                 
                 // Vérifier que le dossier existe
                 if (!file_exists(public_path('photos'))) {
                     mkdir(public_path('photos'), 0755, true);
-                    error_log('Dossier photos créé');
                 }
                 
                 $file->move(public_path('photos'), $filename);
                 $user->photo = $filename;
-                error_log('Photo sauvegardée: ' . $filename);
             } catch (\Exception $e) {
-                error_log('Erreur upload: ' . $e->getMessage());
-                return back()->withErrors(['photo' => 'Erreur: ' . $e->getMessage()]);
+                return redirect()->back()->withErrors(['photo' => 'Erreur lors de l\'upload: ' . $e->getMessage()]);
             }
         }
 
-        if ($user->isDirty('email')) {
-            $user->email_verified_at = null;
-        }
-
         $user->save();
-        error_log('Utilisateur sauvegardé, photo = ' . $user->photo);
         
         return Redirect::route('profile.edit')->with('status', 'profile-updated');
     }
 
     /**
+     * Delete the user's profile photo.
+     */
+    public function destroyPhoto(Request $request)
+    {
+        $user = Auth::user();
+        
+        if ($user->photo) {
+            // Supprimer le fichier physique
+            $photoPath = public_path('photos/' . $user->photo);
+            if (file_exists($photoPath)) {
+                unlink($photoPath);
+            }
+            
+            // Supprimer la référence en base de données
+            $user->photo = null;
+            $user->save();
+            
+            return Redirect::route('profile.edit')->with('status', 'photo-deleted');
+        }
+        
+        return Redirect::route('profile.edit')->with('status', 'no-photo');
+    }
+
+    /**
      * Delete the user's account.
      */
-    public function destroy(Request $request): RedirectResponse
+    public function destroy(Request $request)
     {
         $request->validateWithBag('userDeletion', [
             'password' => ['required', 'current_password'],
         ]);
 
         $user = $request->user();
+
+        // Supprimer la photo si elle existe
+        if ($user->photo && file_exists(public_path('photos/' . $user->photo))) {
+            unlink(public_path('photos/' . $user->photo));
+        }
 
         Auth::logout();
 
