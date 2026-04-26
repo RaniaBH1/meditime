@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
     <title>Dashboard Patient | MediTime</title>
@@ -508,6 +509,46 @@
                 font-size: 1.8rem;
             }
         }
+
+        .nav-right a{
+transition:all 0.25s ease;
+padding:8px 14px;
+border-radius:8px;
+}
+
+.nav-right a:hover{
+
+background:#f0f7ff;
+
+box-shadow:0 6px 18px rgba(58,123,213,0.35);
+
+transform:translateY(-2px);
+
+}
+
+.notification-icon{
+position:relative;
+cursor:pointer;
+}
+
+.notification-badge{
+
+position:absolute;
+top:-6px;
+right:-8px;
+
+background:red;
+color:white;
+
+font-size:12px;
+
+padding:2px 6px;
+
+border-radius:50%;
+
+font-weight:600;
+
+}
     </style>
 </head>
 <body>
@@ -527,6 +568,24 @@
 <nav>
     <div class="logo">Medi<span>Time</span></div>
     <div class="nav-right">
+        <a href="{{ route('patient.appointments') }}" class="drpdown-item">📅 Mes rendez-vous</a>
+<div class="dropdown-item notification-icon" onclick="showNotifications()">
+
+🔔
+
+@php
+$unreadCount = auth()->user()->unreadNotifications->count();
+@endphp
+
+@if($unreadCount > 0)
+<span id="notificationCount" class="notification-badge">
+{{ $unreadCount }}
+</span>
+@endif
+
+Mes notifications
+
+</div>
         <button class="user-btn" onclick="toggleDropdown()">
             <span class="user-avatar">{{ substr(auth()->user()->name, 0, 1) }}</span>
             {{ auth()->user()->name }}
@@ -542,8 +601,6 @@
         <p>{{ auth()->user()->email }}</p>
     </div>
     <div class="dropdown-items">
-        <div class="dropdown-item" onclick="showNotifications()">🔔 Mes notifications</div>
-        <div class="dropdown-item" onclick="showAppointments()">📅 Mes rendez-vous</div>
         <a href="{{ route('profile.edit') }}" class="dropdown-item">✏️ Modifier profil</a>
         <div class="dropdown-item" onclick="showComplaints()">📝 Réclamations</div>
         <form method="POST" action="{{ route('logout') }}">
@@ -597,11 +654,50 @@
 
     // ---------- MODALES ----------
     function showNotifications() {
-        const modal = document.getElementById('modal');
-        document.getElementById('modalContent').innerHTML = `<h3>🔔 Mes notifications</h3><p>Aucune notification pour l'instant.</p>`;
-        modal.style.display = 'flex';
-        dropdownClose();
+
+    const badge = document.getElementById("notificationCount");
+
+    if (badge) {
+        badge.style.display = "none";
     }
+
+    const notifications = @json(auth()->user()->unreadNotifications);
+
+    const modal = document.getElementById('modal');
+    const content = document.getElementById('modalContent');
+
+    let html = `<h3>🔔 Mes notifications</h3>`;
+
+    if (notifications.length === 0) {
+
+        html += `<p>Aucune notification pour l'instant.</p>`;
+
+    } else {
+
+        notifications.forEach(n => {
+
+            html += `
+            <div style="padding:10px;border-bottom:1px solid #eee">
+                ${n.data.message}
+            </div>
+            `;
+
+        });
+
+    }
+
+    content.innerHTML = html;
+
+    modal.style.display = 'flex';
+
+    dropdownClose();
+    fetch('/notifications/read', {
+    method: 'POST',
+    headers: {
+        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+    }
+});
+}
 
     function showAppointments() {
         const modal = document.getElementById('modal');
@@ -684,7 +780,7 @@
                             <br>
                             <a href="/medecin/${doctor.id}">📅 Voir calendrier →</a>
                         </div>
-                    </div>
+                    </div> 
                 `;
             });
         })
@@ -694,10 +790,11 @@
         });
     }
 
+
     function escapeHtml(str) {
         if (!str) return '';
         return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
-    }
+    
 
     document.getElementById('doctorInput').addEventListener('keypress', function(e) {
         if (e.key === 'Enter') searchDoctors();
@@ -706,6 +803,7 @@
     document.addEventListener('DOMContentLoaded', () => {
         console.log('Dashboard patient prêt - style Accueil intégré');
     });
+}
 </script>
 
 </body>

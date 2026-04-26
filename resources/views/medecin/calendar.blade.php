@@ -1,548 +1,682 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
+
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="csrf-token" content="{{ csrf_token() }}">
+
 <title>Calendrier | MediTime</title>
+
+@vite(['resources/css/app.css','resources/js/app.js'])
+@include('layouts.global-css')
 
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
 <style>
-    :root {
-        --accent: #00d2ff;
-        --accent-dark: #3a7bd5;
-        --dark: #1e272e;
-        --glass: rgba(255, 255, 255, 0.5);
-        --bg: #eef2f3;
-        --surface: #ffffff;
-        --border: #e5e7eb;
-    }
 
-    * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-        font-family: 'Poppins', sans-serif;
-    }
+body{
+background:#eef2f3;
+font-family:'Poppins',sans-serif;
+padding-top:90px;
+}
 
-    body {
-        background: #eef2f3;
-        min-height: 100vh;
-        overflow-x: hidden;
-        color: var(--dark);
-        position: relative;
-    }
+/* NAVBAR */
 
-    /* Background blobs */
-    .background-blobs {
-        position: fixed;
-        width: 100vw;
-        height: 100vh;
-        z-index: -1;
-        top: 0;
-        left: 0;
-    }
+nav{
+display:flex;
+justify-content:space-between;
+align-items:center;
+padding:18px 8%;
+position:fixed;
+top:0;
+left:0;
+width:100%;
+background:white;
+border-bottom:1px solid #e5e7eb;
+z-index:1000;
+}
 
-    .animated-bg {
-        position: fixed;
-        width: 100vw;
-        height: 100vh;
-        top: 0;
-        left: 0;
-        z-index: -2;
-        pointer-events: none;
-    }
+.logo{
+font-size:22px;
+font-weight:800;
+}
 
-    .blob {
-        position: absolute;
-        filter: blur(60px);
-        border-radius: 50%;
-        animation: float 15s infinite alternate ease-in-out;
-    }
+.logo span{
+color:#3a7bd5;
+}
 
-    .blob-1 {
-        width: 400px;
-        height: 400px;
-        background: var(--accent);
-        top: -10%;
-        right: -5%;
-    }
+.nav-links{
+display:flex;
+gap:12px;
+align-items:center;
+}
 
-    .blob-2 {
-        width: 450px;
-        height: 450px;
-        background: var(--accent-dark);
-        bottom: -10%;
-        left: -5%;
-    }
+.btn-login{
+padding:10px 18px;
+border-radius:30px;
+text-decoration:none;
+background:#1e272e;
+color:white;
+font-weight:600;
+border:none;
+cursor:pointer;
+}
 
-    @keyframes float {
-        0% { transform: translate(0, 0); }
-        100% { transform: translate(-30px, 30px); }
-    }
+/* PAGE */
 
-    /* NAVBAR */
-    nav {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 18px 8%;
-        position: fixed;
-        width: 100%;
-        top: 0;
-        left: 0;
-        background: rgba(255, 255, 255, 0.95);
-        backdrop-filter: blur(10px);
-        border-bottom: 1px solid var(--border);
-        z-index: 1000;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    }
 
-    .logo {
-        font-size: 22px;
-        font-weight: 800;
-    }
+.calendar-page{
+width: 100%;
+max-width:none;
+padding:30px 60px;
+}
 
-    .logo span {
-        color: var(--accent-dark);
-    }
+/* GRID */
 
-    .nav-links {
-        display: flex;
-        gap: 12px;
-        align-items: center;
-    }
+.main-grid{
+display:grid;
+grid-template-columns: 4fr 2fr;
+gap:30px;
+width:100%;
+max-width:1300px;
+margin:auto;
+}
 
-    .btn-login {
-        padding: 10px 18px;
-        border-radius: 30px;
-        text-decoration: none;
-        background: var(--dark);
-        color: white;
-        font-weight: 600;
-        border: none;
-        cursor: pointer;
-        transition: 0.3s;
-    }
+/* CALENDAR */
 
-    .btn-login:hover {
-        background: var(--accent-dark);
-        transform: translateY(-2px);
-    }
+.calendar-container{
+width:100%;
+min-width:900px;
+background:white;
+border-radius:16px;
+border:1px solid #e5e7eb;
+overflow:hidden;
+}
 
-    /* PAGE CALENDAR */
-    .calendar-page {
-        padding: 120px 8% 50px;
-    }
+.calendar-header{
+display:flex;
+justify-content:space-between;
+align-items:center;
+padding:15px;
+background:linear-gradient(135deg,#3a7bd5,#00d2ff);
+color:white;
+}
 
-    /* DOCTOR CARD */
-    .doctor-banner {
-        background: white;
-        padding: 20px 25px;
-        border-radius: 20px;
-        border: 1px solid var(--border);
-        display: flex;
-        align-items: center;
-        gap: 20px;
-        margin-bottom: 30px;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
-    }
+.calendar-header button{
+background:rgba(255,255,255,0.2);
+border:none;
+padding:6px 12px;
+border-radius:20px;
+cursor:pointer;
+color:white;
+}
 
-    .doctor-avatar {
-        width: 80px;
-        height: 80px;
-        border-radius: 50%;
-        overflow: hidden;
-        border: 3px solid var(--accent-dark);
-    }
+.calendar-dates{
+display:grid;
+grid-template-columns:repeat(7,1fr);
+gap:10px;
+padding:20px;
+width:100%;
+}
 
-    .doctor-avatar img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-    }
+.cal-day{
+min-height:110px;
+font-size:16px;
+padding:10px;
+border-radius:10px;
+background:#f9fafb;
+display:flex;
+flex-direction:column;
+align-items:flex-start;
+justify-content:flex-start;
+gap:6px;
+cursor:pointer;
+}
 
-    .doctor-banner h2 {
-        font-size: 1.5rem;
-        margin-bottom: 5px;
-        color: var(--dark);
-    }
+.cal-day:hover{
+background:#eaf6ff;
+}
 
-    .doctor-banner p {
-        color: #6b7280;
-        font-size: 0.9rem;
-    }
+.cal-day.selected{
+background:#3a7bd5;
+color:white;
+}
 
-    /* GRID */
-    .main-grid {
-        display: grid;
-        grid-template-columns: 1fr 320px;
-        gap: 25px;
-    }
+/* APPOINTMENT STYLE */
 
-    /* CALENDAR CONTAINER */
-    .calendar-container,
-    .time-slots,
-    .confirm-panel {
-        background: white;
-        border: 1px solid var(--border);
-        border-radius: 20px;
-        overflow: hidden;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
-    }
+.appointment{
+font-size:11px;
+padding:2px 4px;
+border-radius:6px;
+}
 
-    .calendar-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 15px 20px;
-        border-bottom: 1px solid var(--border);
-        background: linear-gradient(135deg, var(--accent-dark), var(--accent));
-    }
+.app-confirmed{
+background:#2563eb;
+color:white;
+}
 
-    .calendar-header h3 {
-        color: white;
-        font-weight: 600;
-        font-size: 1.1rem;
-        text-transform: capitalize;
-    }
+.app-pending{
+background:#f59e0b;
+color:white;
+}
 
-    .calendar-header button {
-        background: rgba(255, 255, 255, 0.2);
-        color: white;
-        border: none;
-        padding: 8px 15px;
-        border-radius: 25px;
-        cursor: pointer;
-        font-weight: 600;
-        transition: 0.3s;
-    }
+/* RIGHT PANEL */
 
-    .calendar-header button:hover {
-        background: rgba(255, 255, 255, 0.3);
-        transform: scale(1.05);
-    }
+.time-slots,
+.confirm-panel{
+background:white;
+border:1px solid #e5e7eb;
+border-radius:16px;
+padding:15px;
+margin-bottom:15px;
+}
 
-    .calendar-dates {
-        display: grid;
-        grid-template-columns: repeat(7, 1fr);
-        gap: 8px;
-        padding: 20px;
-    }
+.slot-btn{
+padding:8px 12px;
+border:1px solid #e5e7eb;
+border-radius:8px;
+cursor:pointer;
+background:white;
+}
 
-    .cal-day {
-        text-align: center;
-        padding: 12px;
-        border-radius: 12px;
-        cursor: pointer;
-        transition: 0.2s;
-        font-weight: 500;
-    }
+.appointment-dot-confirmed{
+width:8px;
+height:8px;
+background:#22c55e;
+border-radius:50%;
+margin-top:6px;
+}
 
-    .cal-day:hover {
-        background: #eaf6ff;
-        transform: scale(1.05);
-    }
+.appointment-dot-pending{
+width:8px;
+height:8px;
+background:#facc15;
+border-radius:50%;
+margin-top:6px;
+}
 
-    .cal-day.selected {
-        background: linear-gradient(135deg, var(--accent-dark), var(--accent));
-        color: white;
-    }
+.slot-btn.selected{
+background:#3a7bd5;
+color:white;
+}
 
-    /* TIME SLOTS */
-    .time-slots {
-        padding: 15px;
-    }
+.btn-confirm{
+width:100%;
+padding:12px;
+border:none;
+background:#3a7bd5;
+color:white;
+border-radius:8px;
+cursor:pointer;
+}
 
-    .time-slots h3 {
-        margin-bottom: 15px;
-        color: var(--dark);
-        font-weight: 600;
-    }
+.calendar-weekdays{
+display:grid;
+grid-template-columns:repeat(7,1fr);
+padding:10px 20px;
+background:#f3f4f6;
+border-bottom:1px solid #e5e7eb;
+font-weight:600;
+text-align:center;
+color:#374151;
+}
 
-    .slot-btn {
-        padding: 10px 15px;
-        border: 1px solid var(--border);
-        border-radius: 10px;
-        cursor: pointer;
-        margin: 5px;
-        display: inline-block;
-        transition: 0.2s;
-        background: white;
-        font-weight: 500;
-    }
+/* MOBILE */
 
-    .slot-btn:hover {
-        background: #eaf6ff;
-        transform: scale(1.02);
-    }
+@media(max-width:900px){
 
-    .slot-btn.selected {
-        background: linear-gradient(135deg, var(--accent-dark), var(--accent));
-        color: white;
-        border: none;
-    }
+.main-grid{
+grid-template-columns:1fr;
+}
 
-    /* CONFIRM PANEL */
-    .confirm-panel {
-        margin-top: 20px;
-    }
+}
 
-    .confirm-panel h3 {
-        padding: 15px;
-        border-bottom: 1px solid var(--border);
-        font-weight: 600;
-    }
-
-    #summary {
-        padding: 15px;
-        min-height: 100px;
-        line-height: 1.6;
-    }
-
-    .btn-confirm {
-        width: 100%;
-        padding: 14px;
-        background: linear-gradient(135deg, var(--accent-dark), var(--accent));
-        color: white;
-        border: none;
-        cursor: pointer;
-        font-weight: 600;
-        font-size: 1rem;
-        transition: 0.3s;
-    }
-
-    .btn-confirm:hover:not(:disabled) {
-        transform: translateY(-2px);
-        box-shadow: 0 5px 15px rgba(58, 123, 213, 0.3);
-    }
-
-    .btn-confirm:disabled {
-        background: #aaa;
-        cursor: not-allowed;
-    }
-
-    /* MOBILE */
-    @media (max-width: 900px) {
-        .main-grid {
-            grid-template-columns: 1fr;
-        }
-        
-        .calendar-page {
-            padding: 100px 5% 30px;
-        }
-        
-        .doctor-banner {
-            flex-direction: column;
-            text-align: center;
-        }
-    }
-
-    /* Animation */
-    @keyframes fadeIn {
-        from { opacity: 0; transform: translateY(20px); }
-        to { opacity: 1; transform: translateY(0); }
-    }
-    
-    .calendar-container, .time-slots, .confirm-panel {
-        animation: fadeIn 0.5s ease-out;
-    }
 </style>
+
 </head>
 
 <body>
 
-<!-- ANIMATED BACKGROUND -->
-<div class="animated-bg">
-    <div class="blob blob-1"></div>
-    <div class="blob blob-2"></div>
+<nav>
+
+<div class="logo">Medi<span>Time</span></div>
+
+<div class="nav-links">
+
+<a href="{{ auth()->user()->role === 'medecin' ? route('medecin.dashboard') : route('patient.dashboard') }}" class="btn-login">Accueil</a>
+
+<a href="{{ route('profile.edit') }}" class="btn-login">
+{{ auth()->user()->name }}
+</a>
+
+<form method="POST" action="{{ route('logout') }}">
+@csrf
+<button class="btn-login">Déconnexion</button>
+</form>
+
 </div>
 
-<nav>
-    <div class="logo">Medi<span>Time</span></div>
-
-    <div class="nav-links">
-        <a href="{{ route('patient.dashboard') }}" class="btn-login">Accueil</a>
-
-        <a href="{{ route('profile.edit') }}" class="btn-login">
-            {{ auth()->user()->name }}
-        </a>
-
-        <form method="POST" action="{{ route('logout') }}">
-            @csrf
-            <button class="btn-login">Déconnexion</button>
-        </form>
-    </div>
 </nav>
+
 
 <section class="calendar-page">
 
-    <!-- DOCTOR BANNER -->
-    <div class="doctor-banner">
-        <div class="doctor-avatar">
-            <img src="{{ $medecin->photo ? asset('photos/' . $medecin->photo) : asset('images/default.png') }}" 
-                 alt="Dr. {{ $medecin->name }}"
-                 onerror="this.src='{{ asset('images/default.png') }}'">
-        </div>
+<div class="main-grid">
 
-        <div>
-            <h2>Dr. {{ $medecin->name }}</h2>
-            <p>{{ $medecin->speciality ?? 'Spécialité non définie' }} · Consultation</p>
-            @if($medecin->address)
-                <p style="font-size: 12px; color: #6b7280; margin-top: 5px;">📍 {{ $medecin->address }}</p>
-            @endif
-            @if($medecin->phone)
-                <p style="font-size: 12px; color: #6b7280;">📞 {{ $medecin->phone }}</p>
-            @endif
-        </div>
-    </div>
+<!-- CALENDAR -->
 
-    <div class="main-grid">
+<div class="calendar-container">
 
-        <!-- CALENDAR -->
-        <div class="calendar-container">
-            <div class="calendar-header">
-                <button onclick="changeMonth(-1)">← Mois précédent</button>
-                <h3 id="monthYear"></h3>
-                <button onclick="changeMonth(1)">Mois suivant →</button>
-            </div>
-            <div id="calendarDates" class="calendar-dates"></div>
-        </div>
+<div class="calendar-header">
 
-        <!-- RIGHT PANEL -->
-        <div>
-            <div class="time-slots">
-                <h3>📅 Créneaux disponibles</h3>
-                <div id="slots">Sélectionnez une date</div>
-            </div>
+<button onclick="changeMonth(-1)">←</button>
 
-            <div class="confirm-panel">
-                <h3>📝 Résumé du rendez-vous</h3>
-                <div id="summary">Aucun rendez-vous sélectionné</div>
-                <button id="confirmBtn" class="btn-confirm" disabled>
-                    ✅ Confirmer le rendez-vous
-                </button>
-            </div>
-        </div>
+<h3 id="monthYear"></h3>
 
-    </div>
+<button onclick="changeMonth(1)">→</button>
+
+</div>
+
+<div class="calendar-weekdays">
+<div>Lun</div>
+<div>Mar</div>
+<div>Mer</div>
+<div>Jeu</div>
+<div>Ven</div>
+<div>Sam</div>
+<div>Dim</div>
+</div>
+
+<div id="calendarDates" class="calendar-dates"></div>
+
+</div>
+
+
+<div>
+
+@if($doctorMode ?? false)
+
+<div class="time-slots">
+
+<h3>📅 Rendez-vous du jour</h3>
+
+<div id="dayAppointments">
+Cliquez sur une date pour voir les rendez-vous
+</div>
+
+</div>
+
+@else
+
+<div class="time-slots">
+
+<h3>📅 Créneaux disponibles</h3>
+
+<div id="slots">Sélectionnez une date</div>
+
+</div>
+
+<div class="confirm-panel">
+
+<h3>📝 Résumé</h3>
+
+<div id="summary">Aucun rendez-vous sélectionné</div>
+
+<button id="confirmBtn" class="btn-confirm" disabled>
+Confirmer rendez-vous
+</button>
+
+</div>
+
+@endif
+
+
+</div>
+
+
+@if(!($doctorMode ?? false) && isset($medecin))
+
+<form id="appointmentForm" method="POST" action="{{ route('appointments.store') }}">
+
+@csrf
+
+<input type="hidden" name="doctor_id" value="{{ $medecin->id }}">
+
+<input type="hidden" name="date" id="appointmentDate">
+
+<input type="hidden" name="time" id="appointmentTime">
+
+</form>
+
+@endif
+
+
 </section>
 
+
 <script>
+
+
+let doctorMode = @json($doctorMode ?? false);
+let appointments = @json($appointments ?? []);
+
 let currentDate = new Date();
 let selectedDate = null;
 let selectedSlot = null;
 
-const slots = ["08:00","08:30","09:00","09:30","10:00","10:30","11:00","11:30","14:00","14:30","15:00","15:30","16:00","16:30"];
+const doctorId = @json($medecin->id ?? null);
 
-function renderCalendar() {
-    const container = document.getElementById("calendarDates");
-    container.innerHTML = "";
 
-    const year = currentDate.getFullYear();
-    const month = currentDate.getMonth();
+function renderCalendar(){
 
-    document.getElementById("monthYear").innerText =
-        currentDate.toLocaleString('fr-FR', { month: 'long', year: 'numeric' });
+const container = document.getElementById("calendarDates");
+container.innerHTML = "";
 
-    const firstDay = new Date(year, month, 1).getDay();
-    const daysInMonth = new Date(year, month + 1, 0).getDate();
+const year = currentDate.getFullYear();
+const month = currentDate.getMonth();
 
-    let startOffset = firstDay === 0 ? 6 : firstDay - 1;
+document.getElementById("monthYear").innerText =
+currentDate.toLocaleString('fr-FR',{month:'long',year:'numeric'});
 
-    for (let i = 0; i < startOffset; i++) {
-        container.innerHTML += `<div></div>`;
-    }
+const firstDay = new Date(year,month,1).getDay();
+const daysInMonth = new Date(year,month+1,0).getDate();
 
-    const today = new Date();
-    const todayDate = today.getDate();
-    const todayMonth = today.getMonth();
-    const todayYear = today.getFullYear();
+let startOffset = firstDay === 0 ? 6 : firstDay - 1;
 
-    for (let d = 1; d <= daysInMonth; d++) {
-        let isToday = (d === todayDate && month === todayMonth && year === todayYear);
-        let todayClass = isToday ? 'today' : '';
-        container.innerHTML += `
-            <div class="cal-day ${todayClass}" onclick="selectDate(${d}, this)">
-                ${d}
-            </div>
-        `;
-    }
+for(let i=0;i<startOffset;i++){
+container.innerHTML += `<div></div>`;
 }
 
-function changeMonth(i) {
-    currentDate.setMonth(currentDate.getMonth() + i);
-    renderCalendar();
-    selectedDate = null;
-    selectedSlot = null;
-    document.getElementById("slots").innerHTML = "Sélectionnez une date";
-    document.getElementById("summary").innerHTML = "Aucun rendez-vous sélectionné";
-    document.getElementById("confirmBtn").disabled = true;
+for(let d=1; d<=daysInMonth; d++){
+
+if(doctorMode){
+
+let dateString=`${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+let dayAppointments = appointments.filter(a => a.date === dateString);
+
+let hasConfirmed = dayAppointments.some(a => a.status === "confirmed");
+let hasPending = dayAppointments.some(a => a.status === "pending");
+
+let dot = "";
+
+if(hasConfirmed){
+dot = `<div class="appointment-dot-confirmed"></div>`;
+}
+else if(hasPending){
+dot = `<div class="appointment-dot-pending"></div>`;
 }
 
-function selectDate(day, element) {
-    selectedDate = day;
-    
-    document.querySelectorAll('.cal-day').forEach(el => {
-        el.classList.remove('selected');
-    });
-    
-    element.classList.add('selected');
+container.innerHTML += `
+<div class="cal-day" onclick="selectDoctorDay(${d})">
+<strong>${d}</strong>
+${dot}
+</div>
+`;
 
-    let html = '<div style="display: flex; flex-wrap: wrap; gap: 8px;">';
-    slots.forEach(slot => {
-        html += `<div class="slot-btn" onclick="selectSlot('${slot}', this)">🕐 ${slot}</div>`;
-    });
-    html += '</div>';
-    document.getElementById("slots").innerHTML = html;
-    
-    selectedSlot = null;
-    document.getElementById("summary").innerHTML = "Aucun rendez-vous sélectionné";
-    document.getElementById("confirmBtn").disabled = true;
+}else{
+
+container.innerHTML += `
+<div class="cal-day" onclick="selectDate(${d},this)">
+${d}
+</div>
+`;
+
 }
 
-function selectSlot(time, element) {
-    selectedSlot = time;
-    
-    document.querySelectorAll('.slot-btn').forEach(el => {
-        el.classList.remove('selected');
-    });
-    
-    element.classList.add('selected');
-
-    const year = currentDate.getFullYear();
-    const month = currentDate.getMonth() + 1;
-    
-    const weekdays = ['Dimanche', 'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'];
-    const dateObj = new Date(year, currentDate.getMonth(), selectedDate);
-    const weekday = weekdays[dateObj.getDay()];
-    
-    document.getElementById("summary").innerHTML = `
-        <strong style="color: var(--accent-dark);">👨‍⚕️ Dr. {{ $medecin->name }}</strong><br>
-        📅 <strong>Date:</strong> ${weekday} ${selectedDate}/${month}/${year}<br>
-        ⏰ <strong>Heure:</strong> ${time}<br>
-        <hr style="margin: 10px 0; border-color: #eee;">
-        <small style="color: #6b7280;">Cliquez sur "Confirmer" pour valider votre rendez-vous</small>
-    `;
-    document.getElementById("confirmBtn").disabled = false;
 }
 
-document.getElementById("confirmBtn")?.addEventListener('click', function() {
-    if (selectedDate && selectedSlot) {
-        const year = currentDate.getFullYear();
-        const month = currentDate.getMonth() + 1;
-        
-        alert(`✅ Rendez-vous confirmé !\n\nDr. {{ $medecin->name }}\n📅 Date: ${selectedDate}/${month}/${year}\n⏰ Heure: ${selectedSlot}\n\nUn email de confirmation vous a été envoyé.`);
-        
-        // Désactiver le bouton après confirmation
-        document.getElementById("confirmBtn").disabled = true;
-        document.getElementById("confirmBtn").textContent = "✓ Rendez-vous confirmé";
-    }
+}
+
+function changeMonth(i){
+currentDate.setMonth(currentDate.getMonth()+i);
+renderCalendar();
+}
+
+function selectDate(day,element){
+
+if(doctorMode) return;
+
+selectedDate = day;
+
+document.querySelectorAll(".cal-day").forEach(el=>el.classList.remove("selected"));
+element.classList.add("selected");
+
+const year = currentDate.getFullYear();
+const month = currentDate.getMonth()+1;
+
+const date =
+`${year}-${month.toString().padStart(2,'0')}-${day.toString().padStart(2,'0')}`;
+
+document.getElementById("appointmentDate").value = date;
+
+loadAvailableSlots(date);
+
+}
+
+function loadAvailableSlots(date){
+
+const container = document.getElementById("slots");
+container.innerHTML = "Chargement...";
+
+const url = "{{ url('/doctor') }}/" + doctorId + "/available-slots?date=" + date;
+
+console.log("Fetching:", url);
+
+fetch(url)
+.then(res => {
+
+if(!res.ok){
+throw new Error("HTTP " + res.status);
+}
+
+return res.json();
+
+})
+.then(slots => {
+
+container.innerHTML = "";
+
+if(slots.length === 0){
+container.innerHTML = "<p>Aucun créneau disponible</p>";
+return;
+}
+
+slots.forEach(time => {
+
+let btn = document.createElement("div");
+btn.className = "slot-btn";
+btn.innerText = time;
+
+btn.onclick = function(){
+
+selectedSlot = time;
+
+document.querySelectorAll(".slot-btn")
+.forEach(el => el.classList.remove("selected"));
+
+btn.classList.add("selected");
+
+document.getElementById("appointmentTime").value = time;
+
+document.getElementById("confirmBtn").disabled = false;
+
+/* UPDATE SUMMARY */
+
+const year = currentDate.getFullYear();
+const month = currentDate.getMonth()+1;
+
+const date =
+`${year}-${month.toString().padStart(2,'0')}-${selectedDate.toString().padStart(2,'0')}`;
+
+document.getElementById("summary").innerHTML = `
+<b>Date :</b> ${date}<br>
+<b>Heure :</b> ${time}
+`;
+
+};
+
+container.appendChild(btn);
+
 });
 
+})
+.catch(err => {
+
+console.error(err);
+container.innerHTML = "Erreur chargement créneaux";
+
+});
+
+}
+
+function selectDoctorDay(day){
+
+if(!doctorMode) return;
+
+const year=currentDate.getFullYear();
+const month=currentDate.getMonth()+1;
+
+const date=
+`${year}-${month.toString().padStart(2,'0')}-${day.toString().padStart(2,'0')}`;
+
+const container=document.getElementById("dayAppointments");
+
+let dayApps = appointments.filter(a =>
+    a.date === date && a.status !== "rejected"
+);
+
+if(dayApps.length===0){
+container.innerHTML="<p>Aucun rendez-vous ce jour.</p>";
+return;
+}
+
+let html="";
+
+dayApps.forEach(app=>{
+
+let color = app.status==="confirmed" ? "#2563eb" : "#f59e0b";
+
+html += `
+<div style="padding:10px;border-bottom:1px solid #eee">
+
+⏰ ${app.time}
+<br>
+
+👤 ${app.patient.name}
+<br>
+
+<span style="color:${color};font-weight:600">
+${app.status}
+</span>
+
+</div>
+`;
+
+});
+
+container.innerHTML = html;
+
+}
+const confirmBtn = document.getElementById("confirmBtn");
+
+if(confirmBtn){
+
+confirmBtn.addEventListener("click", function(){
+
+if(!selectedDate || !selectedSlot){
+alert("Veuillez sélectionner une date et un créneau.");
+return;
+}
+
+fetch("{{ route('appointments.store') }}",{
+
+method:"POST",
+
+headers:{
+"Content-Type":"application/json",
+"X-CSRF-TOKEN":document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+},
+
+body:JSON.stringify({
+doctor_id:doctorId,
+date:document.getElementById("appointmentDate").value,
+time:document.getElementById("appointmentTime").value
+})
+
+})
+
+.then(res=>res.json())
+.then(data=>{
+
+showConfirmationPopup();
+
+loadAvailableSlots(document.getElementById("appointmentDate").value);
+
+document.getElementById("confirmBtn").disabled=true;
+
+});
+
+});
+
+}
+function showConfirmationPopup(){
+
+const date=document.getElementById("appointmentDate").value;
+const time=document.getElementById("appointmentTime").value;
+
+document.getElementById("popupDetails").innerHTML=
+`
+📅 ${date}<br>
+⏰ ${time}<br><br>
+⏳ En attente de confirmation du médecin
+`;
+
+document.getElementById("bookingPopup").style.display="block";
+
+}
+
+function closePopup(){
+document.getElementById("bookingPopup").style.display="none";
+}
 renderCalendar();
+
+
+
 </script>
 
+<div id="bookingPopup" style="
+position:fixed;
+top:50%;
+left:50%;
+transform:translate(-50%,-50%);
+background:white;
+padding:30px;
+border-radius:15px;
+box-shadow:0 10px 40px rgba(0,0,0,0.2);
+display:none;
+z-index:9999;
+text-align:center;
+">
+
+<h2 style="color:#16a34a;">✔ Rendez-vous envoyé</h2>
+
+<p id="popupDetails"></p>
+
+<button onclick="closePopup()" style="
+margin-top:15px;
+padding:10px 20px;
+background:#3a7bd5;
+color:white;
+border:none;
+border-radius:8px;
+cursor:pointer;
+">
+
+Fermer
+
+</button>
+
+</div>
 </body>
 </html>

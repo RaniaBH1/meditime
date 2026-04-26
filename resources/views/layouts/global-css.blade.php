@@ -1045,6 +1045,122 @@
         max-width: 800px;
         line-height: 1.6;
     }
+    /* Dashboard container */
+.dashboard-page{
+    max-width:1200px;
+    margin:120px auto 60px;
+    padding:40px;
+    background:white;
+    border-radius:18px;
+    box-shadow:0 15px 40px rgba(0,0,0,0.08);
+}
+
+/* Section title */
+.section-title{
+    font-size:28px;
+    font-weight:700;
+    margin-bottom:30px;
+    color:#1f2937;
+}
+
+/* Table */
+.appointments-table{
+    width:100%;
+    border-collapse:collapse;
+    border-radius:12px;
+    overflow:hidden;
+}
+
+/* Table header */
+.appointments-table thead{
+    background:#2563eb;
+    color:white;
+}
+
+.appointments-table th{
+    text-align:left;
+    padding:16px;
+    font-size:14px;
+    letter-spacing:0.5px;
+}
+
+/* Table rows */
+.appointments-table td{
+    padding:16px;
+    border-bottom:1px solid #f1f1f1;
+    font-size:14px;
+    color:#374151;
+}
+
+/* Zebra effect */
+.appointments-table tbody tr:nth-child(even){
+    background:#f9fafb;
+}
+
+.appointments-table tbody tr:hover{
+    background:#eef2ff;
+    transition:0.2s;
+}
+
+/* Status badges */
+.status-pending{
+    background:#fef3c7;
+    color:#92400e;
+    padding:6px 10px;
+    border-radius:8px;
+    font-size:12px;
+    font-weight:600;
+}
+
+.status-confirmed{
+    background:#dcfce7;
+    color:#166534;
+    padding:6px 10px;
+    border-radius:8px;
+    font-size:12px;
+    font-weight:600;
+}
+
+.status-rejected{
+    background:#fee2e2;
+    color:#991b1b;
+    padding:6px 10px;
+    border-radius:8px;
+    font-size:12px;
+    font-weight:600;
+}
+
+/* Buttons */
+.appointments-table button{
+    border:none;
+    padding:8px 14px;
+    border-radius:8px;
+    font-size:13px;
+    font-weight:600;
+    cursor:pointer;
+    transition:0.2s;
+}
+
+/* Confirm button */
+.appointments-table form:first-child button{
+    background:#10b981;
+    color:white;
+    margin-right:6px;
+}
+
+.appointments-table form:first-child button:hover{
+    background:#059669;
+}
+
+/* Reject button */
+.appointments-table form:last-child button{
+    background:#ef4444;
+    color:white;
+}
+
+.appointments-table form:last-child button:hover{
+    background:#dc2626;
+}
 
     @media (max-width: 768px) {
         .dashboard-page {
@@ -1055,4 +1171,21 @@
             font-size: 1.9rem;
         }
     }
+.availability-form{
+display:flex;
+gap:15px;
+margin-top:20px;
+flex-wrap:wrap;
+}
+
+.availability-slot{
+display:flex;
+justify-content:space-between;
+align-items:center;
+background:white;
+padding:15px;
+border-radius:10px;
+margin-top:10px;
+box-shadow:0 4px 10px rgba(0,0,0,0.05);
+}
 </style>

@@ -35,4 +35,31 @@ class MedecinController extends Controller
 
         return view('medecin.calendar', compact('medecin'));
     }
+
+    public function dashboard()
+{
+    $doctorId = auth()->id();
+
+    $appointmentsCount = \App\Models\Appointment::where('doctor_id',$doctorId)->count();
+
+    $pendingCount = \App\Models\Appointment::where('doctor_id',$doctorId)
+        ->where('status','pending')
+        ->count();
+
+    $availabilityCount = \App\Models\DoctorAvailabilitySlot::where('doctor_id',$doctorId)
+        ->count();
+
+    $todayAppointments = \App\Models\Appointment::where('doctor_id',$doctorId)
+        ->whereDate('date', now())
+        ->with('patient')
+        ->orderBy('time')
+        ->get();
+
+    return view('medecin.dashboard',[
+        'appointmentsCount'=>$appointmentsCount,
+        'pendingCount'=>$pendingCount,
+        'availabilityCount'=>$availabilityCount,
+        'todayAppointments'=>$todayAppointments
+    ]);
+}
 }
