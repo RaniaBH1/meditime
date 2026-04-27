@@ -4,11 +4,16 @@ use App\Http\Controllers\AdminController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\MedecinController;
 use App\Http\Controllers\PatientController;
+use App\Http\Controllers\GoogleController; // Ajout du contrôleur Google
+use App\Http\Controllers\AppointmentController;
+use App\Http\Controllers\DoctorAvailabilityController;
 
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
-
+// Routes Google OAuth
+Route::get('auth/google', [GoogleController::class, 'redirectToGoogle'])->name('login.google');
+Route::get('auth/google/callback', [GoogleController::class, 'handleGoogleCallback']);
 
 Route::get('/', function () {
     return view('auth.index');
@@ -69,8 +74,6 @@ Route::middleware('auth')->group(function () {
     ->name('profile.photo.destroy');
 });
 
-use App\Http\Controllers\AppointmentController;
-
 Route::post('/appointments', [AppointmentController::class, 'store'])
     ->name('appointments.store')
     ->middleware('auth');
@@ -94,7 +97,6 @@ Route::get('/search-medecins', [PatientController::class, 'recherche'])
 Route::get('/patient/appointments',[AppointmentController::class,'patientAppointments'])
     ->name('patient.appointments');  
     
-use App\Http\Controllers\DoctorAvailabilityController;
 Route::middleware(['auth','role:medecin'])->group(function () {
 
 Route::get('/medecin/disponibilites',

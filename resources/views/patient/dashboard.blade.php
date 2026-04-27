@@ -117,7 +117,7 @@
             background: rgba(58, 123, 213, 0.08);
         }
 
-        /* NAVIGATION (identique à l'accueil) */
+        /* NAVIGATION */
         nav {
             display: flex;
             justify-content: space-between;
@@ -155,7 +155,6 @@
             align-items: center;
         }
 
-        /* BOUTON "EYA" (même style que "Se connecter" avec hover bleu) */
         .user-btn {
             background: var(--dark);
             color: white;
@@ -190,7 +189,6 @@
             font-weight: bold;
         }
 
-        /* DROPDOWN MENU */
         .dropdown-menu {
             position: absolute;
             top: 80px;
@@ -278,7 +276,6 @@
             color: #dc3545;
         }
 
-        /* MAIN CONTENT (centré, avec barre de recherche) */
         .main-dashboard {
             padding-top: 130px;
             min-height: 100vh;
@@ -308,7 +305,6 @@
             margin-top: 8px;
         }
 
-        /* SEARCH BAR (style glass acceuil) */
         .search-container {
             width: 100%;
             max-width: 650px;
@@ -358,7 +354,6 @@
             transform: translateY(-2px);
         }
 
-        /* RÉSULTATS (cartes médecin) */
         .results-container {
             width: 100%;
             max-width: 750px;
@@ -453,7 +448,6 @@
             font-weight: 500;
         }
 
-        /* MODAL */
         .modal-overlay {
             display: none;
             position: fixed;
@@ -510,50 +504,39 @@
             }
         }
 
-        .nav-right a{
-transition:all 0.25s ease;
-padding:8px 14px;
-border-radius:8px;
-}
+        .nav-right a {
+            transition: all 0.25s ease;
+            padding: 8px 14px;
+            border-radius: 8px;
+        }
 
-.nav-right a:hover{
+        .nav-right a:hover {
+            background: #f0f7ff;
+            box-shadow: 0 6px 18px rgba(58,123,213,0.35);
+            transform: translateY(-2px);
+        }
 
-background:#f0f7ff;
+        .notification-icon {
+            position: relative;
+            cursor: pointer;
+        }
 
-box-shadow:0 6px 18px rgba(58,123,213,0.35);
-
-transform:translateY(-2px);
-
-}
-
-.notification-icon{
-position:relative;
-cursor:pointer;
-}
-
-.notification-badge{
-
-position:absolute;
-top:-6px;
-right:-8px;
-
-background:red;
-color:white;
-
-font-size:12px;
-
-padding:2px 6px;
-
-border-radius:50%;
-
-font-weight:600;
-
-}
+        .notification-badge {
+            position: absolute;
+            top: -6px;
+            right: -8px;
+            background: red;
+            color: white;
+            font-size: 12px;
+            padding: 2px 6px;
+            border-radius: 50%;
+            font-weight: 600;
+        }
     </style>
 </head>
 <body>
 
-<!-- FOND ANIMÉ (identique accueil) -->
+<!-- FOND ANIMÉ -->
 <div class="background-blobs">
     <div class="animated-bg">
         <div class="blob blob-1"></div>
@@ -568,24 +551,19 @@ font-weight:600;
 <nav>
     <div class="logo">Medi<span>Time</span></div>
     <div class="nav-right">
-        <a href="{{ route('patient.appointments') }}" class="drpdown-item">📅 Mes rendez-vous</a>
-<div class="dropdown-item notification-icon" onclick="showNotifications()">
-
-🔔
-
-@php
-$unreadCount = auth()->user()->unreadNotifications->count();
-@endphp
-
-@if($unreadCount > 0)
-<span id="notificationCount" class="notification-badge">
-{{ $unreadCount }}
-</span>
-@endif
-
-Mes notifications
-
-</div>
+        <a href="{{ route('patient.appointments') }}" class="dropdown-item">📅 Mes rendez-vous</a>
+        <div class="dropdown-item notification-icon" onclick="showNotifications()">
+            🔔
+            @php
+                $unreadCount = auth()->user()->unreadNotifications->count();
+            @endphp
+            @if($unreadCount > 0)
+                <span id="notificationCount" class="notification-badge">
+                    {{ $unreadCount }}
+                </span>
+            @endif
+            Mes notifications
+        </div>
         <button class="user-btn" onclick="toggleDropdown()">
             <span class="user-avatar">{{ substr(auth()->user()->name, 0, 1) }}</span>
             {{ auth()->user()->name }}
@@ -593,7 +571,7 @@ Mes notifications
     </div>
 </nav>
 
-<!-- DROPDOWN MENU (Notifications, RDV, Profil, Réclamations, Déco) -->
+<!-- DROPDOWN MENU -->
 <div class="dropdown-menu" id="dropdownMenu">
     <div class="dropdown-header">
         <div class="user-initial">{{ substr(auth()->user()->name, 0, 1) }}</div>
@@ -617,7 +595,6 @@ Mes notifications
         <p>Bienvenue sur votre espace patient</p>
     </div>
 
-    <!-- Barre de recherche -->
     <div class="search-container">
         <div class="search-wrapper">
             <input type="text" id="doctorInput" placeholder="Rechercher un médecin, une spécialité..." autocomplete="off">
@@ -625,7 +602,6 @@ Mes notifications
         </div>
     </div>
 
-    <!-- Résultats dynamiques -->
     <div class="results-container" id="results"></div>
 </div>
 
@@ -652,52 +628,47 @@ Mes notifications
         }
     });
 
-    // ---------- MODALES ----------
+    // ---------- FERMETURE DROPDOWN (réutilisable) ----------
+    function dropdownClose() {
+        document.getElementById('dropdownMenu').classList.remove('active');
+    }
+
+    // ---------- MODALES génériques ----------
+    function closeModal() {
+        document.getElementById('modal').style.display = 'none';
+    }
+
     function showNotifications() {
+        const badge = document.getElementById("notificationCount");
+        if (badge) {
+            badge.style.display = "none";
+        }
 
-    const badge = document.getElementById("notificationCount");
+        const notifications = @json(auth()->user()->unreadNotifications);
+        const modal = document.getElementById('modal');
+        const content = document.getElementById('modalContent');
 
-    if (badge) {
-        badge.style.display = "none";
+        let html = `<h3>🔔 Mes notifications</h3>`;
+        if (notifications.length === 0) {
+            html += `<p>Aucune notification pour l'instant.</p>`;
+        } else {
+            notifications.forEach(n => {
+                html += `<div style="padding:10px;border-bottom:1px solid #eee">${escapeHtml(n.data.message)}</div>`;
+            });
+        }
+        content.innerHTML = html;
+        modal.style.display = 'flex';
+        dropdownClose();
+
+        // Marquer les notifications comme lues
+        fetch('/notifications/read', {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                'Content-Type': 'application/json'
+            }
+        }).catch(err => console.error('Erreur lors du marquage des notifications:', err));
     }
-
-    const notifications = @json(auth()->user()->unreadNotifications);
-
-    const modal = document.getElementById('modal');
-    const content = document.getElementById('modalContent');
-
-    let html = `<h3>🔔 Mes notifications</h3>`;
-
-    if (notifications.length === 0) {
-
-        html += `<p>Aucune notification pour l'instant.</p>`;
-
-    } else {
-
-        notifications.forEach(n => {
-
-            html += `
-            <div style="padding:10px;border-bottom:1px solid #eee">
-                ${n.data.message}
-            </div>
-            `;
-
-        });
-
-    }
-
-    content.innerHTML = html;
-
-    modal.style.display = 'flex';
-
-    dropdownClose();
-    fetch('/notifications/read', {
-    method: 'POST',
-    headers: {
-        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-    }
-});
-}
 
     function showAppointments() {
         const modal = document.getElementById('modal');
@@ -722,17 +693,9 @@ Mes notifications
     function submitComplaint(e) {
         e.preventDefault();
         const text = document.getElementById('complaintText')?.value;
-        if(text?.trim()) alert('✅ Réclamation envoyée :\n' + text);
+        if (text?.trim()) alert('✅ Réclamation envoyée :\n' + text);
         else alert('Veuillez écrire une réclamation.');
         closeModal();
-    }
-
-    function closeModal() {
-        document.getElementById('modal').style.display = 'none';
-    }
-
-    function dropdownClose() {
-        document.getElementById('dropdownMenu').classList.remove('active');
     }
 
     // ---------- RECHERCHE MÉDECINS ----------
@@ -780,7 +743,7 @@ Mes notifications
                             <br>
                             <a href="/medecin/${doctor.id}">📅 Voir calendrier →</a>
                         </div>
-                    </div> 
+                    </div>
                 `;
             });
         })
@@ -790,12 +753,17 @@ Mes notifications
         });
     }
 
-
+    // Échappement HTML correct
     function escapeHtml(str) {
         if (!str) return '';
-        return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
-    
+        return str.replace(/&/g, '&amp;')
+                  .replace(/</g, '&lt;')
+                  .replace(/>/g, '&gt;')
+                  .replace(/"/g, '&quot;')
+                  .replace(/'/g, '&#39;');
+    }
 
+    // Écouteur pour la touche "Entrée" dans le champ de recherche
     document.getElementById('doctorInput').addEventListener('keypress', function(e) {
         if (e.key === 'Enter') searchDoctors();
     });
@@ -803,7 +771,6 @@ Mes notifications
     document.addEventListener('DOMContentLoaded', () => {
         console.log('Dashboard patient prêt - style Accueil intégré');
     });
-}
 </script>
 
 </body>

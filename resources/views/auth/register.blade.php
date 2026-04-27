@@ -27,12 +27,9 @@
                 <a href="{{ route('register') }}" class="tab active">Inscription</a>
             </div>
 
-            <button type="button" class="social-btn" disabled>
-                <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" alt="Google" style="width:20px;">
-                S’inscrire avec Google
-            </button>
+           
 
-            <div class="separator">OU</div>
+            
 
             @if (session('status'))
                 <div class="status-text">
